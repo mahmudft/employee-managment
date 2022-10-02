@@ -275,6 +275,7 @@ class ApiRoot(generics.GenericAPIView):
             'worktime': reverse("worktime", request=request),
             'teamleaders': reverse("teamleader", request=request),
             'employees': reverse("employees", request=request),
+            'swagger': reverse("swagger-schema", request=request)
         })
 
 # class TeamViewSet(viewsets.ModelViewSet):
