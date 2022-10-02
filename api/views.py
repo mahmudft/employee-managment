@@ -1,18 +1,29 @@
-from os import stat
 from rest_framework.decorators import api_view
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework import status
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework.reverse import reverse
 from api.models import Employee, Team, TeamLeader, WorkTime
 from api.serializers import EmployeeSerializer, TeamLeaderSerializer, TeamSerializer, WorkTimeSerializer
-# Create your views here.
 
 #teams route
+
+
+@swagger_auto_schema(method='get', responses={200: TeamSerializer(many=True)})
+@swagger_auto_schema(method='post', request_body=TeamSerializer)
 @api_view(['GET', 'POST'])
 def teams_view(request):
     """
     Retrieve, create team(s)
+
+    @Post Request 
+    Request Body 
+
+    {
+        "team_name": String,
+        "team_leader": Int  // Must be id of team leader record or can be null
+    }
 
     """
 
@@ -44,8 +55,35 @@ def teams_view(request):
             return Response(serializer.errors)
 
 
+@swagger_auto_schema(method='get', responses={200: TeamSerializer(many=True)})
+@swagger_auto_schema(method='delete', responses={200: []})
+@swagger_auto_schema(method='PUT', responses={200: TeamSerializer()})
 @api_view(['GET', 'DELETE', 'PUT'])
 def team_view_detail(request, pk):
+     """
+     * Accepts id of single Team object as param
+
+     Retrieve, Update, Delete single team object
+
+     @GET request will return single team object or []
+ 
+     @PUT will update exsisting team object
+
+     Request Body
+
+     Put the fields which are going to be updated
+
+     {
+         "team_name": String,
+         "team_leader": Int  // Must be id of team leader record or can be null
+     }
+
+
+     @DELETE will delete signle record
+
+     Send empty request     
+     """
+     
      try:
         team_by_id = Team.objects.get(id=pk)
      except Team.DoesNotExist:
@@ -75,10 +113,25 @@ def team_view_detail(request, pk):
 # employee route
 
 
+@swagger_auto_schema(method='get', responses={200: EmployeeSerializer(many=True)})
+@swagger_auto_schema(method='post', responses={200: EmployeeSerializer()})
 @api_view(['GET', 'POST'])
 def employee_view(request):
     """
     Retrieve, create employee(s)
+
+    @GET request will return Employees or []
+
+    @POST will create new employee object
+
+    Request Body
+
+    {
+        "name": String
+        "team": Int //id of object Team
+        "hourly_rate": Int
+        "worktime": Int  // id of object in WorkTime 
+    }
 
     """
     employees = Employee.objects.all()
@@ -119,8 +172,36 @@ def employee_view(request):
             return Response(serializer.errors)
 
 
+@swagger_auto_schema(method='get', responses={200: EmployeeSerializer(many=True)})
+@swagger_auto_schema(method='delete', responses={200: []})
+@swagger_auto_schema(method='put', responses={200: EmployeeSerializer()})
 @api_view(['GET', 'DELETE', 'PUT'])
 def employee_view_detail(request, pk):
+    """
+    * Accepts id of single Employee object as param
+
+    Retrieve, Update, Delete single employee object
+
+    @GET request will return single employee object or []
+
+    @PUT will update exsisting employee object
+
+    Request Body
+
+    Put the fields which are going to be updated
+
+    {
+        "name": String
+        "team": Int //id of object Team
+        "hourly_rate": Int
+        "worktime": Int  // id of object in WorkTime 
+    }
+
+
+    @DELETE will delete signle record
+
+    Send empty request
+    """
     try:
         employee_by_id = Employee.objects.get(id=pk)
     except Employee.DoesNotExist:
@@ -159,6 +240,17 @@ def worktime_view(request):
     """
     Retrieve, create worktime(s)
 
+    @GET will return objects of Worktime table or []
+
+    @POST will create new object in WorkTime table
+
+    Request body
+
+    {
+        "type": String  // accepts type of work either full-time or part-time
+        "hours": Int  // accepts work hours per week for full-time 40 hrs/week 
+    }
+
     """
     teams = WorkTime.objects.all()
 
@@ -179,6 +271,23 @@ def worktime_view(request):
 
 @api_view(['GET', 'DELETE', 'PUT'])
 def worktime_view_detail(request, pk):
+     """
+     Retrieve, create worktime(s)
+
+     *Accept id of worktime object id as param
+
+     @GET will return single object from Worktime table or []
+
+     @PUT will update exsisiting object in WorkTime table
+
+     Request body
+
+     {
+         "type": String  // accepts type of work either full-time or part-time
+         "hours": Int  // accepts work hours per week for full-time 40 hrs/week 
+     }
+
+     """
      try:
         worktime = WorkTime.objects.get(id=pk)
      except WorkTime.DoesNotExist:
@@ -206,6 +315,18 @@ def worktime_view_detail(request, pk):
 def teamleader_view(request):
     """
     Retrieve, create teamleader(s)
+
+    @GET will return objects of Worktime table or []
+
+    @POST will create new object in WorkTime table
+
+    Request body
+
+    {
+        "team_leader_name": String
+        "hourly_rate": Int
+        "worktime": Int // id of record in Worktime table
+    }
 
     """
 
@@ -240,6 +361,21 @@ def teamleader_view(request):
 
 @api_view(['GET', 'DELETE', 'PUT'])
 def teamleader_view_detail(request, pk):
+     """
+     Retrieve, create teamleader(s)
+
+     @GET will return single object from Worktime table or []
+
+     @PUT will update exsisting object in WorkTime table
+
+     Request body
+
+     {
+         "team_leader_name": String
+         "hourly_rate": Int
+         "worktime": Int // id of record in Worktime table
+     }
+     """
      try:
         team_leader_by_id = TeamLeader.objects.get(id=pk)
      except TeamLeader.DoesNotExist:
@@ -266,7 +402,12 @@ def teamleader_view_detail(request, pk):
             return Response(serializer.errors)
 
 
+
+
 class ApiRoot(generics.GenericAPIView):
+    """
+    Root Api view with clickable links to main endpoints
+    """
     name = 'api-root'
 
     def get(self, request, *args, **kwargs):
@@ -277,21 +418,3 @@ class ApiRoot(generics.GenericAPIView):
             'employees': reverse("employees", request=request),
             'swagger': reverse("swagger-schema", request=request)
         })
-
-# class TeamViewSet(viewsets.ModelViewSet):
-#     queryset = Team.objects.all()
-#     serializer_class = TeamSerializer
-
-
-# class EmployeeViewSet(viewsets.ModelViewSet):
-#     queryset = Employee.objects.all()
-#     serializer_class = EmployeeSerializer
-
-# class TeamLeaderViewSet(viewsets.ModelViewSet):
-#     queryset = TeamLeader.objects.all()
-#     serializer_class = TeamLeaderSerializer
-
-
-# class WorkTimeViewSet(viewsets.ModelViewSet):
-#     queryset = WorkTime.objects.all()
-#     serializer_class = WorkTimeSerializer
