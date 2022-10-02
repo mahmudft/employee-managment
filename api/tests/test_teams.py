@@ -16,7 +16,7 @@ class TeamsTestCase(TestCase):
     # client = APIClient()
 
     def setUp(self):
-        print("Setting Up: Injecting test data for TeamLeader Test CAse")
+        print("Setting Up: Injecting test data for Teams Test Case")
         WorkTime.objects.create(type="full-time", hours=30)
         hours = WorkTime.objects.get(hours=30)
         TeamLeader.objects.create(team_leader_name="Micheal", hourly_rate=10, worktime=hours)
@@ -32,6 +32,10 @@ class TeamsTestCase(TestCase):
         response = router.post(reverse('teams'), data={
                                "team_name": "Marketing", "team_leader": self.teamleader.id}, content_type='application/json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_single_get_teams_object_endpoint(self):
+        response = router.get('/teams/{id}'.format(id=self.team.id))
+        self.assertEqual(response.data.get("team_name"), "Communication")
 
     def test_get_teams_endpoint(self):
         response = router.get(reverse('teams'))

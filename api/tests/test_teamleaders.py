@@ -21,22 +21,22 @@ class TeamLeaderTestCase(TestCase):
 
     def test_post_teamleader_route(self):
         response = router.post(reverse('teamleader'), data={"team_leader_name": "Snapsis", "hourly_rate": 20, "worktime": self.hours.id}, content_type='application/json')
-        print(response.data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_get_teamleader_route(self):
         response = router.get(reverse('teamleader'))
-        print(response.data)
         self.assertEqual(len(response.data), 1)
+
+    def test_single_get_teamleader_route(self):
+        response = router.get('/teamleader/{id}'.format(id=self.teamleader.id))
+        self.assertEqual(response.data.get("team_leader_name"), "Leom")
 
     def test_put_teamleader_route(self):
         response = router.put(
             '/teamleader/{uid}'.format(uid=self.teamleader.id), data={"hourly_rate": 27}, content_type='application/json')
-        print(response.data)
         self.assertEqual(response.data.get("total_rate"), 27 * 1.1)
 
     def test_delete_teamleader_route(self):
         response = router.delete(
             '/teamleader/{uid}'.format(uid=self.teamleader.id), content_type='application/json')
-        print(response.data)
         self.assertEqual(response.data, [])

@@ -34,6 +34,10 @@ class EmployeesTestCase(TestCase):
     def test_get_employees_route(self):
         response = router.get(reverse('employees'))
         self.assertEqual(len(response.data), 1)
+    
+    def test_single_get_employee_object(self):
+        response = router.get('/employees/{id}'.format(id=self.employee.id))
+        self.assertEqual(response.data.get("name"), "Zdan")
 
     def test_put_employees_route(self):
         response = router.put(

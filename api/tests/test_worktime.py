@@ -12,11 +12,10 @@ class WorkTimeTest(TestCase):
     # client = APIClient()
 
     def setUp(self):
+        print("Setting Up: Injecting Test data for WorkTime Test Case")
         response = router.post(reverse('worktime'), data={
             "type": "part-time", "hours": 12}, format='json')
         self.id = response.data["id"]
-        print("Setting Up: Injecting test data")
-        pass
 
     def test_post_new_work_schedule(self):
         response = router.post(reverse('worktime'), data={
@@ -26,6 +25,10 @@ class WorkTimeTest(TestCase):
     def test_get_work_schedules(self):
         response = router.get(reverse('worktime'))
         self.assertEqual(len(response.data), 1)
+
+    def test_single_get_work_schedule_object(self):
+        response = router.get('/worktime/{id}'.format(id=self.id))
+        self.assertEqual(response.data.get("hours"), 12)
 
     def test_put_work_schedule(self):
         response = router.put(
