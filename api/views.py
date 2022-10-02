@@ -24,7 +24,6 @@ def teams_view(request):
 
     elif request.method == 'POST':
         team_data = request.data
-        print(team_data['team_name'])
 
         if team_data.get('team_leader'):
             try:
@@ -90,7 +89,6 @@ def employee_view(request):
 
     elif request.method == 'POST':
         team_data = request.data
-        print(team_data['team'])
 
         if team_data.get('team'):
             try:
@@ -220,7 +218,6 @@ def teamleader_view(request):
     
     elif request.method == 'POST':
         team_leader_data = request.data
-        print(team_leader_data['worktime'])
 
         if team_leader_data.get('worktime'):
             try:
